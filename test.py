@@ -24,6 +24,25 @@ class CellTable:
         self.generateVertexGrid()
         self.populateNeighbors()
 
+    def generateTextFile(self, desiredPath):
+        f = open(desiredPath, "w+")
+        point = str(self.startVertex.x) + " " + str(self.startVertex.y) + "\n"
+        f.write(point)
+        point = str(self.goalVertex.x) + " " + str(self.goalVertex.y) + "\n"
+        f.write(point)
+        dem = str(self.xSize) + " " + str(self.ySize) +"\n"
+        f.write(point)
+        for i in range(self.xSize):
+            for j in range(self.ySize):
+                point = str(i) + " " + str(j) + " "
+                f.write(point)
+                if(self.table[i][j]):
+                    f.write("1\n")
+                else:
+                    f.write("0\n")
+        f.close()
+
+
     def DFS(self, vertex):
         if(vertex.equals(self.goalVertex)):
             return True
@@ -179,3 +198,5 @@ for i in tbl.startVertex.neighbors:
     print("(" + str(i.x) + ", " + str(i.y) + ")")
 tbl.clearVisits()
 print("DFS result: " + str(tbl.DFS(tbl.startVertex)))
+
+tbl.generateTextFile("qwerty.txt")
