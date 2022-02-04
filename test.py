@@ -24,6 +24,8 @@ class CellTable:
         self.generateVertexGrid()
         self.populateNeighbors()
 
+    #will generate the text file needed based on the 'table' stored
+    #@param desiredPath string with the path and file name desired
     def generateTextFile(self, desiredPath):
         f = open(desiredPath, "w+")
         point = str(self.startVertex.x) + " " + str(self.startVertex.y) + "\n"
@@ -42,7 +44,9 @@ class CellTable:
                     f.write("0\n")
         f.close()
 
-
+    #performs DFS search via recursion. assumes vertexGrid is initialized
+    #@vertex the current node being inspected, MUST INPUT StartVertex WHEN CALLING
+    #@return true if it successfully finds the GoalVertex, false otherwise
     def DFS(self, vertex):
         if(vertex.equals(self.goalVertex)):
             return True
@@ -55,11 +59,14 @@ class CellTable:
             if(recursed == True):
                 return True
         return False
-        
+    #used by DFS, resets visted values
     def clearVisits(self):
         for row in self.vertexGrid:
             for vertex in row:
                 vertex.visited = False
+
+    #generates the representation based around the vertices, opposed to the cells
+    #saves it to self.vertexGrid, no return
     def generateVertexGrid(self):
         grid = []
         for i in range(self.xSize +1):
@@ -75,6 +82,7 @@ class CellTable:
             grid.append(row)
         self.vertexGrid = grid
 
+    #adds all immediately accessable neighbors to each vertex's "neighbor" list, which will be a list of Vertex
     def populateNeighbors(self):
         for row in self.vertexGrid:
             for vertex in row:
@@ -85,7 +93,14 @@ class CellTable:
                         vertex.neighbors.append(neighbor)
 
 
-
+    #checks if a path is blocked between two adjacent vertices. 
+    #translating between the vertex table and the cell table was annoying, and i may have messed up
+    #but i believe that, when you consider a square with four vertices, the lowest, leftmost vertex's indices
+    #should correspond with that cell's indices on the boolean table. for example, a cell constructed as such
+    #(3,3), (4,3)
+    #(3,2), (4,2)
+    #self.table[3][2] should be the corresponding boolean value, with true meaning blocked
+    #if i mess this up lmk
     def isPathBlocked(self, v1, v2):
         xDif = v1.x - v2.x
         yDif = v1.y - v2.y
@@ -121,7 +136,8 @@ class CellTable:
     
 
 
-    
+    #determines which other vertices are neighbors with the given vertex, ignoring whether or not theyre blocked
+    #@return a list of vertices that could be neighbors
     def getPossibleNeighbors(self, vertex):
         ret = []
         #print("the vertex = (" + str(vertex.x) + ", " + str(vertex.y) + ")")
@@ -139,7 +155,7 @@ class CellTable:
                 ret.append(self.vertexGrid[vertex.x + i][vertex.y + j])
         return ret
 
-
+    #driver function to generate startVertex and goalVertex
     def generateStartAndGoal (self) :
         start = self.generateVertex()
         goal = self.generateVertex()
@@ -149,6 +165,7 @@ class CellTable:
         self.startVertex = start
         self.goalVertex = goal
 
+    #blocks random tiles by choosing random numbers from 0-totalCells, then converting that number to an index
     def blockRandomTiles (self):
         
         amountToBlock = math.floor(self.xSize * self.ySize * .1)
@@ -161,6 +178,8 @@ class CellTable:
             print("(" + str(x) + ", " + str(y) + ")")
             self.table[x][y] = True
 
+
+    #used to generate the start and goal vertices, ensures they aren't blocked to begin with
     def generateVertex(self) :
         tempX = randint(0, self.xSize)
         tempY = randint (0, self.ySize)
@@ -172,6 +191,7 @@ class CellTable:
         return ret
         
 
+    #checks if there is any legal way to reach v
     def isVertexBlocked (self, v):
         for i in range(3):
             if( v.x + (i-1) < 0 or v.x + (i-1) > (self.xSize - 1)):
@@ -184,6 +204,9 @@ class CellTable:
                     return False
         return True 
 
+
+
+#all of this was just me testing various portions
 tbl = CellTable(10,10)
 ar = tbl.table
 print("start = (" + str(tbl.startVertex.x) + ", " + str(tbl.startVertex.y) + ")")
