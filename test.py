@@ -1,3 +1,4 @@
+from cmath import inf
 import math
 from random import randint, sample
 
@@ -5,24 +6,159 @@ class Vertex:
     def __init__(self, x, y):
         self.x = int(x)
         self.y = int(y)
-        visited = False
+        self.__getattribute__
+        self.visited = False
+        self.g = inf
+        self.parent = None
+        self.h = 0
+        self.f = inf
         self.neighbors = []
 
     def equals(self, cmp):
         if(self.x == cmp.x and self.y == cmp.y):
+            #print("x1 = " + str(self.x) + "x2 = " + str(cmp.x) + "y1 = " + str(self.y) + "y2 = " + str(cmp.y))
             return True
         return False
 
+class PriorityQueue:
+    def __init__(self):
+        self.queue = []
+        
+    #performs insertion sort on the queue, ascending
+    def insertionSort(self):
+        for i in range(len(self.queue)):
+            minValue = -1
+            minIdx = -1
+            for j in range(len(self.queue)):
+                if(self.queue[j].f < minValue):
+                    minValue = self.queue[j]
+                    minIdx = j
+            #print(i)
+            #print(minValue)
+            temp = self.queue[i]
+            self.queue[i] = self.queue[minIdx]
+            self.queue[minIdx] = temp
+    
+    #inserts the given vertex into the queue after assigning its f-value. calls insertion sort
+    def insert(self, vertex, f):
+        vertex.f = f
+        for i in range(len(self.queue)):
+            if(self.queue[i].equals(vertex)):
+                
+                self.queue[i] <- vertex
+                return True
+           
+        
+        self.queue.append(vertex)
+        if(len(self.queue) > 1):
+            self.insertionSort()
+        return True
+
+    #return the head of the queue
+    def pop(self):
+        return self.queue.pop(0)
+
+    #returns true if the queue is empty, false otherwise
+    def isEmpty(self):
+        if(len(self.queue) == 0):
+            return True
+        return False
+            
 
 class CellTable:
-    def __init__(self, xSize, ySize):
-        self.xSize = xSize
-        self.ySize = ySize
-        self.table = [ [ False for y in range(ySize)]  for x in range(xSize)]
-        self.blockRandomTiles()
-        self.generateStartAndGoal()
+
+    #set path to None, i couldnt get it to read the file
+    def __init__(self, xSize, ySize, path):
+        if(path == None):
+            self.xSize = xSize
+            self.ySize = ySize
+            self.table = [ [ False for y in range(ySize)]  for x in range(xSize)]
+            self.blockRandomTiles()
+            self.generateStartAndGoal()
+        else:
+            lines = []
+            with open(path) as f:
+                lines = f.readlines
+                
+                
+               
+                ctr = 0
+                for i in lines:
+                    if(ctr == 0):
+                        tempX = int(i[0:1])
+                        tempY = int(i[2])
+                        self.startVertex = Vertex(tempX, tempY)
+                    elif(ctr == 1):
+                        tempX = int(i[0:1])
+                        tempY = int(i[2])
+                        self.goalVertex = Vertex(tempX, tempY)
+                    elif(ctr == 2):
+                        self.xSize = int(i[0:1])
+                        self.ySize = int(i[2])
+                        self.table = [ [ False for y in range(ySize)]  for x in range(xSize)]
+                    elif(i[4] == 1):
+                        tempX = int(i[0:1])
+                        tempY = int(i[2])
+                        self.table[tempX][tempY] = True
+                    ctr = ctr + 1
+
+
         self.generateVertexGrid()
         self.populateNeighbors()
+
+    #will perfom the A* search. returns the goal node on success, false on failure
+    def AStar(self):
+        self.assignHValues()
+        self.fringe = PriorityQueue()
+        self.closed = []
+        currentVertex = self.startVertex
+        currentVertex.g = 0
+        currentVertex.parent = currentVertex
+        self.fringe.insert(currentVertex, currentVertex.g + currentVertex.f)
+        while(not self.fringe.isEmpty()):
+            currentVertex = self.fringe.pop()
+            if(currentVertex.equals(self.goalVertex)):
+                return currentVertex
+            self.closed.append(currentVertex)
+            for child in currentVertex.neighbors:
+                if(not child in self.closed):
+                    self.updateVertex(currentVertex, child)
+        return False
+
+    #determines if the child should be added to the fringe, and if so, sets the g, f, and parent values
+    def updateVertex(self,current, child):
+        if(current.g + self.cost(current, child) < child.g):
+            child.g = current.g +self.cost(current, child)
+            child.parent = current
+            self.fringe.insert(child, child.g + child.h)
+
+            
+
+    #calculates and returns distance between vertices, simple distance formula, returns the distance
+    def cost(self, v1, v2):
+        ret = math.sqrt((v1.x - v2.x)**2 + (v1.y - v2.y)**2)
+        return ret
+
+    #assigns every vertex its h value
+    def assignHValues(self):
+        for row in self.vertexGrid:
+            for current in row:
+                firstTerm = math.sqrt(2) * min(abs(current.x - self.goalVertex.x), abs(current.y - self.goalVertex.y))
+                secondTerm = max(abs(current.x - self.goalVertex.x), abs(current.y - self.goalVertex.y))
+                thirdTerm = min(abs(current.x - self.goalVertex.x), abs(current.y - self.goalVertex.y))
+                current.h = firstTerm +secondTerm - thirdTerm
+
+    #prints the path A* took, from the goal node back up to start node. For use, have A* return into this, like printPath(AStar())
+    def printPath(self, node):
+        if(node == False):
+            return
+        parent = node.parent
+        if node.equals(parent):
+            return
+        print("(" + str(node.x) + ", " + str(node.y) + "). g = " + str(node.g) + ". h = " + str(node.h) + ". f = " + str(node.f))
+        if not node.equals(parent):
+            self.printPath(parent)
+
 
     #will generate the text file needed based on the 'table' stored
     #@param desiredPath string with the path and file name desired
@@ -33,7 +169,7 @@ class CellTable:
         point = str(self.goalVertex.x) + " " + str(self.goalVertex.y) + "\n"
         f.write(point)
         dem = str(self.xSize) + " " + str(self.ySize) +"\n"
-        f.write(point)
+        f.write(dem)
         for i in range(self.xSize):
             for j in range(self.ySize):
                 point = str(i) + " " + str(j) + " "
@@ -169,14 +305,17 @@ class CellTable:
     def blockRandomTiles (self):
         
         amountToBlock = math.floor(self.xSize * self.ySize * .1)
-        #print(amountToBlock)
-        totalCells = self.xSize * self.ySize
+        totalCells = int(self.xSize)* int(self.ySize)
+        
         toBlock = sample(range(totalCells), amountToBlock)
         for i in toBlock:
-            x = math.floor(i / self.xSize)
-            y = i % self.xSize
+            x = i % self.xSize
+            print(i)
+            y = math.floor(i / self.xSize)
             print("(" + str(x) + ", " + str(y) + ")")
+            
             self.table[x][y] = True
+
 
 
     #used to generate the start and goal vertices, ensures they aren't blocked to begin with
@@ -193,21 +332,21 @@ class CellTable:
 
     #checks if there is any legal way to reach v
     def isVertexBlocked (self, v):
-        for i in range(3):
-            if( v.x + (i-1) < 0 or v.x + (i-1) > (self.xSize - 1)):
+        for i in range(-1,2):
+            if( v.x + (i) < 0 or v.x + (i) > (self.xSize - 1)):
                 continue
-            for j in range(3):
+            for j in range(-1,2):
                 #print("i = " + str(i) + ". j = " + str(j) + ".v.x = " + str(v.x) + ".v.y = " + str(v.y) +"\n")
-                if(v.y + (j-1) < 0 or v.y + (j-1) >(self.ySize-1)):
+                if(v.y + (j) < 0 or v.y + (j) >(self.ySize-1)):
                     continue
-                if(self.table[v.x+i-1][v.y+j-1]):
+                if(not self.table[v.x+i][v.y+j]):
                     return False
         return True 
 
 
 
 #all of this was just me testing various portions
-tbl = CellTable(10,10)
+tbl = CellTable(4,3, None)
 ar = tbl.table
 print("start = (" + str(tbl.startVertex.x) + ", " + str(tbl.startVertex.y) + ")")
 print("goal = (" + str(tbl.goalVertex.x) + ", " + str(tbl.goalVertex.y) + ")")
@@ -222,4 +361,5 @@ for i in tbl.startVertex.neighbors:
 tbl.clearVisits()
 print("DFS result: " + str(tbl.DFS(tbl.startVertex)))
 
-tbl.generateTextFile("qwerty.txt")
+
+tbl.printPath(tbl.AStar())
