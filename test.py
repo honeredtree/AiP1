@@ -27,11 +27,11 @@ class PriorityQueue:
     #performs insertion sort on the queue, ascending
     def insertionSort(self):
         for i in range(len(self.queue)):
-            minValue = -1
+            minValue = inf
             minIdx = -1
             for j in range(len(self.queue)):
                 if(self.queue[j].f < minValue):
-                    minValue = self.queue[j]
+                    minValue = self.queue[j].f
                     minIdx = j
             #print(i)
             #print(minValue)
@@ -45,7 +45,7 @@ class PriorityQueue:
         for i in range(len(self.queue)):
             if(self.queue[i].equals(vertex)):
                 
-                self.queue[i] <- vertex
+                self.queue[i] = vertex
                 return True
            
         
@@ -63,7 +63,11 @@ class PriorityQueue:
         if(len(self.queue) == 0):
             return True
         return False
-            
+
+    def printQueue(self):
+        for vertex in self.queue:
+            print("(" + str(vertex.x) + ", " + str(vertex.y) + ")" + ". g = " + str(vertex.g) + ". h = " + str(vertex.h) + ". f = " + str(vertex.f))
+        print("\n")
 
 class CellTable:
 
@@ -77,30 +81,33 @@ class CellTable:
             self.generateStartAndGoal()
         else:
             lines = []
-            with open(path) as f:
-                lines = f.readlines
+            f = open(path)
+            ctr = 0
+            for i in f:
+                if(len(i) < 1):
+                    break
+                if(ctr == 0):
+                    tempX = int(i[0:1])
+                    tempY = int(i[2])
+                    self.startVertex = Vertex(tempX - 1, tempY - 1)
+                    
+                elif(ctr == 1):
+                    tempX = int(i[0:1])
+                    tempY = int(i[2])
+                    self.goalVertex = Vertex(tempX - 1, tempY - 1)
+                elif(ctr == 2):
+                    self.xSize = int(i[0:1])
+                    self.ySize = int(i[2])
+                    self.table = [ [ False for y in range(ySize)]  for x in range(xSize)]
+                elif(len(i) > 4 and i[4] == "1"):
+                    
+                    tempX = int(i[0:1])
+                    tempY = int(i[2])
+                    print("(" + str(tempX-1) + ", " + str(tempY-1) + ")")
+                    self.table[tempX-1][tempY-1] = True
                 
-                
-               
-                ctr = 0
-                for i in lines:
-                    if(ctr == 0):
-                        tempX = int(i[0:1])
-                        tempY = int(i[2])
-                        self.startVertex = Vertex(tempX, tempY)
-                    elif(ctr == 1):
-                        tempX = int(i[0:1])
-                        tempY = int(i[2])
-                        self.goalVertex = Vertex(tempX, tempY)
-                    elif(ctr == 2):
-                        self.xSize = int(i[0:1])
-                        self.ySize = int(i[2])
-                        self.table = [ [ False for y in range(ySize)]  for x in range(xSize)]
-                    elif(i[4] == 1):
-                        tempX = int(i[0:1])
-                        tempY = int(i[2])
-                        self.table[tempX][tempY] = True
-                    ctr = ctr + 1
+                ctr = ctr + 1
+            f.close()
 
 
         self.generateVertexGrid()
@@ -117,6 +124,8 @@ class CellTable:
         self.fringe.insert(currentVertex, currentVertex.g + currentVertex.f)
         while(not self.fringe.isEmpty()):
             currentVertex = self.fringe.pop()
+            #print("current: " + "(" + str(currentVertex.x) + ", " + str(currentVertex.y) + ")")
+            
             if(currentVertex.equals(self.goalVertex)):
                 return currentVertex
             self.closed.append(currentVertex)
@@ -208,7 +217,9 @@ class CellTable:
         for i in range(self.xSize +1):
             row = []
             for j in range(self.ySize + 1):
+                
                 if(self.startVertex.x == i and self.startVertex.y == j):
+                    
                     row.append(self.startVertex)
                 elif(self.goalVertex.x == i and self.goalVertex.y == j):
                     row.append(self.goalVertex)
@@ -220,12 +231,16 @@ class CellTable:
 
     #adds all immediately accessable neighbors to each vertex's "neighbor" list, which will be a list of Vertex
     def populateNeighbors(self):
+        
         for row in self.vertexGrid:
             for vertex in row:
                 potentialNeighbors = self.getPossibleNeighbors(vertex)
+                #print("(" + str(vertex.x) + ", " + str(vertex.y) + ")")
                 for neighbor in potentialNeighbors:
-                    #print((neighbor.x))
+                   
                     if(not self.isPathBlocked(vertex, neighbor)):
+                        
+                        
                         vertex.neighbors.append(neighbor)
 
 
@@ -346,7 +361,7 @@ class CellTable:
 
 
 #all of this was just me testing various portions
-tbl = CellTable(4,3, None)
+tbl = CellTable(4,3, "qwerty.txt")
 ar = tbl.table
 print("start = (" + str(tbl.startVertex.x) + ", " + str(tbl.startVertex.y) + ")")
 print("goal = (" + str(tbl.goalVertex.x) + ", " + str(tbl.goalVertex.y) + ")")
