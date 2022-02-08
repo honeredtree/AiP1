@@ -13,12 +13,22 @@ def searchDriver():
     searchTable = Search.CellTable(pathToFile)
     print("Start Vertex = (" + str(searchTable.startVertex.x) + ", " + str(searchTable.startVertex.y) + ")")
     print("Goal Vertex = (" + str(searchTable.goalVertex.x) + ", " + str(searchTable.goalVertex.y) + ")")
-    searchType = int(input("which search would you like to perform? For A*, enter 1: "))
-    if(searchType == 1):
+    y_or_n = input("Would you like to see a simple representation of the grid?(y/n)")
+    if(y_or_n == "y"):
+        printGrid(searchTable)
+    searchType = input("which search would you like to perform? For A*, enter 1: ")
+    if(searchType == "1"):
         AStarDriver(searchTable)
     else:
         print("Error")
 
+def printGrid(cellTable):
+    table = cellTable.table
+    for i in range(len(table)):
+        print("row " + str(i) + ": ", end = "")
+        for j in range(len(table[i])):
+            print(table[i][j], end = " ")
+        print("")
 
 def AStarDriver(searchTable):
     goal = searchTable.AStar()
@@ -42,15 +52,17 @@ def AStarDriver(searchTable):
 
 
 
-
-isGenerating = input("would you like to generate grid files(y/n): ")
-if (isGenerating.lower() == "y"):
-   
-    generateDriver()
-    searchDriver()
-elif (isGenerating.lower() == "n"):
-    searchDriver()
-else:
-    print("Error")
+while(True):
+    isGenerating = input("would you like to generate grid files(y/n/q to quit): ")
+    if (isGenerating.lower() == "y"):
+        generateDriver()
+        searchDriver()
+    elif (isGenerating.lower() == "n"):
+        searchDriver()
+    elif(isGenerating.lower() == "q"):
+        break
+    else:
+        print("Error")
+        
 
 

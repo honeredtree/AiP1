@@ -26,18 +26,19 @@ class PriorityQueue:
         
     #performs insertion sort on the queue, ascending
     def insertionSort(self):
-        for i in range(len(self.queue)):
-            minValue = inf
+        for i in range(len(self.queue) - 1):
+            minValue = self.queue[i].f
             minIdx = -1
-            for j in range(len(self.queue)):
+            for j in range(i +1,len(self.queue)):
                 if(self.queue[j].f < minValue):
                     minValue = self.queue[j].f
                     minIdx = j
             #print(i)
             #print(minValue)
-            temp = self.queue[i]
-            self.queue[i] = self.queue[minIdx]
-            self.queue[minIdx] = temp
+            if(minIdx > -1):
+                temp = self.queue[i]
+                self.queue[i] = self.queue[minIdx]
+                self.queue[minIdx] = temp
     
     #inserts the given vertex into the queue after assigning its f-value. calls insertion sort
     def insert(self, vertex, f):
