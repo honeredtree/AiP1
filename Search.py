@@ -113,20 +113,24 @@ class CellTable:
         self.assignHValues()
         self.fringe = PriorityQueue()
         self.closed = []
+        self.visited = [] # for gui
         currentVertex = self.startVertex
         currentVertex.g = 0
         currentVertex.parent = currentVertex
         self.fringe.insert(currentVertex, currentVertex.g + currentVertex.f)
+        self.visited.append(currentVertex) # for gui
         while(not self.fringe.isEmpty()):
             currentVertex = self.fringe.pop()
             #print("current: " + "(" + str(currentVertex.x) + ", " + str(currentVertex.y) + ")")
             
             if(currentVertex.equals(self.goalVertex)):
-                return currentVertex
+                self.visited.append(currentVertex) #for gui
+                return currentVertex, self.visited
             self.closed.append(currentVertex)
             for child in currentVertex.neighbors:
                 if(not child in self.closed):
                     self.updateVertex(currentVertex, child)
+                    self.visited.append(currentVertex) #for gui
         return False
 
     #determines if the child should be added to the fringe, and if so, sets the g, f, and parent values

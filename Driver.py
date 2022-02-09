@@ -1,6 +1,5 @@
 import Search
 import Generator
-
 import tkinter
 
 def generateDriver():
@@ -33,7 +32,7 @@ def printGrid(cellTable):
         print("")
 
 def AStarDriver(searchTable):
-    goal = searchTable.AStar()
+    goal, visited = searchTable.AStar()
     if (goal == False):
         print("Unable to complete AStar")
         return
@@ -49,8 +48,83 @@ def AStarDriver(searchTable):
     for vertex in path:
         print("(" + str(vertex.x) + ", " + str(vertex.y) + "). g = " + str(vertex.g) + ". h = " + str(vertex.h) + ". f = " + str(vertex.f))
     print("total cost = " + str(path[-1].g))
+    Visualize(path, searchTable, visited)
+
+# print out the g, h, and f values when vertex is pressed
+def ButtonPress(searchTable, row, column, visited):
+    for vertex in visited:
+        if (row == vertex.x and column == vertex.y):
+            print("g = " + str(vertex.g) + ". h = " + str(vertex.h) + ". f = " + str(vertex.f))
+            return
+    print("vertex not visited in algorithm")
 
 
+def Visualize(path, searchTable, visited):
+    table = searchTable.table
+    rows = len(table)
+    cols = len(table[0])
+    guiweight = 30
+
+    geostr = str(rows*guiweight)+"x"+str(cols*guiweight)
+    master=tkinter.Tk()
+    master.title("visualization")
+    master.geometry(geostr)
+
+    canvas = tkinter.Canvas(master)
+    canvas.config(height=rows*guiweight, width=cols*guiweight)
+    canvas.pack()
+
+    # generate vertex buttons
+    # took out text=buttonname, changed height and width from 20 to 5
+    # changed buttonweight 50 to 20
+    # changed lineweight from 12 to 3
+    buttonweight=20
+    lineweight = 4
+    buttonsize = 5
+    if (rows>40 or cols>40):
+        buttonweight=12
+        lineweight = 1
+        buttonsize = 1
+
+    button = []
+    pixel = tkinter.PhotoImage(width=1, height=1)
+    count=0
+    for r in range(rows+1):
+        for c in range(cols+1):
+            buttonname = str(r)+","+str(c)
+            button.append(tkinter.Button(canvas, image=pixel, height=buttonsize, width=buttonsize, compound="c",
+                command=lambda r=r, c=c: ButtonPress(searchTable, r, c, visited)))
+            button[count].place(x=r*buttonweight,y=c*buttonweight)
+            if (r==searchTable.startVertex.x and c==searchTable.startVertex.y):
+                button[count].config(bg="green")
+            elif (r==searchTable.goalVertex.x and c==searchTable.goalVertex.y):
+                button[count].config(bg="red")
+            count = count+1
+
+    # generate edge paths
+    for r in range(rows+1):
+        for c in range(cols):
+            canvas.create_line(r*buttonweight+lineweight,c*buttonweight+lineweight, (r)*buttonweight+lineweight, (c+1)*buttonweight+lineweight)
+
+    for r in range(rows):
+        for c in range(cols+1):
+            canvas.create_line(r*buttonweight+lineweight,c*buttonweight+lineweight, (r+1)*buttonweight+lineweight, (c)*buttonweight+lineweight)
+
+    # fill in blocked rectangles
+    count=0
+    for r in range(rows):
+        for c in range(cols):
+            if table[r][c]:
+                canvas.create_rectangle(r*buttonweight+lineweight,c*buttonweight+lineweight,(r+1)*buttonweight+lineweight,(c+1)*buttonweight+lineweight, fill="gray")
+            count = count+1
+
+    # outline path
+    lastVertex = searchTable.startVertex
+    for vertex in path:
+        canvas.create_line(lastVertex.x*buttonweight+lineweight, lastVertex.y*buttonweight+lineweight, vertex.x*buttonweight+lineweight, vertex.y*buttonweight+lineweight, fill="red", width=3)
+        lastVertex = vertex
+
+    master.mainloop()
 
 
 
@@ -65,6 +139,3 @@ while(True):
         break
     else:
         print("Error")
-        
-
-
