@@ -1,6 +1,8 @@
 import Search
 import Generator
 
+import tkinter
+
 def generateDriver():
     xSize = int(input("input X dimension (positive int): "))
     ySize = int(input("input Y dimension (positive int): "))
