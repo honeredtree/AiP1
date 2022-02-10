@@ -1,5 +1,6 @@
 import Search
 import Generator
+import thetaStar
 import tkinter
 
 def generateDriver():
@@ -12,14 +13,17 @@ def generateDriver():
 def searchDriver():
     pathToFile = input("input the path to the file containing the grid to search on: ")
     searchTable = Search.CellTable(pathToFile)
+    thetaTable = thetaStar.CellTableT(2,2, pathToFile)
     print("Start Vertex = (" + str(searchTable.startVertex.x) + ", " + str(searchTable.startVertex.y) + ")")
     print("Goal Vertex = (" + str(searchTable.goalVertex.x) + ", " + str(searchTable.goalVertex.y) + ")")
     y_or_n = input("Would you like to see a simple representation of the grid?(y/n)")
     if(y_or_n == "y"):
         printGrid(searchTable)
-    searchType = input("which search would you like to perform? For A*, enter 1: ")
+    searchType = input("which search would you like to perform? For A*, enter 1, for Theta*, enter 2: ")
     if(searchType == "1"):
         AStarDriver(searchTable)
+    elif (searchType == "2"):
+        ThetaStarDriver(thetaTable)
     else:
         print("Error")
 
@@ -49,6 +53,29 @@ def AStarDriver(searchTable):
         print("(" + str(vertex.x) + ", " + str(vertex.y) + "). g = " + str(vertex.g) + ". h = " + str(vertex.h) + ". f = " + str(vertex.f))
     print("total cost = " + str(path[-1].g))
     Visualize(path, searchTable, visited)
+
+def ThetaStarDriver(searchTable):
+    goal, visited = searchTable.thetaStar()
+    path = []
+    child = goal
+    parent = child.parent
+    path.append(child)
+    while(not parent.equals(child)):
+        path.append(parent)
+        child = parent
+        parent = parent.parent
+    path.reverse()
+    for vertex in path:
+        print("(" + str(vertex.x) + ", " + str(vertex.y) + "). g = " + str(vertex.g) + ". h = " + str(vertex.h) + ". f = " + str(vertex.f))
+    print("total cost = " + str(path[-1].g))
+    Visualize(path, searchTable, visited)
+
+
+def SearchToTheta(searchTable):
+    ret = thetaStar.CellTableT(searchTable.xSize, searchTable.ySize, None)
+    ret.vertexGrid = searchTable.vertexGrid
+    ret.table = searchTable.table
+    return ret
 
 # print out the g, h, and f values when vertex is pressed
 def ButtonPress(searchTable, row, column, visited):

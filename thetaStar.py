@@ -105,33 +105,34 @@ class CellTableT:
             self.generateStartAndGoal()
         else:
             lines = []
-            f = open(path)
-            ctr = 0
-            for i in f:
-                if(len(i) < 1):
-                    break
-                if(ctr == 0):
-                    tempX = int(i[0:1])
-                    tempY = int(i[2])
-                    self.startVertex = VertexT(tempX, tempY)
+        f = open(path)
+        ctr = 0
+        for i in f:
+            if(len(i) < 1):
+                break
+            coords = i.split()
+            if(ctr == 0):
+                tempX = int(coords[0])
+                tempY = int(coords[1])
+                self.startVertex = VertexT(tempX - 1, tempY - 1)
                     
-                elif(ctr == 1):
-                    tempX = int(i[0:1])
-                    tempY = int(i[2])
-                    self.goalVertex = VertexT(tempX, tempY)
-                elif(ctr == 2):
-                    self.xSize = int(i[0:1])
-                    self.ySize = int(i[2])
-                    self.table = [ [ False for y in range(ySize)]  for x in range(xSize)]
-                elif(len(i) > 4 and i[4] == "1"):
+            elif(ctr == 1):
+                tempX = int(coords[0])
+                tempY = int(coords[1])
+                self.goalVertex = VertexT(tempX - 1, tempY - 1)
+            elif(ctr == 2):
+                self.xSize = int(coords[0])
+                self.ySize = int(coords[1])
+                self.table = [ [ False for y in range(self.ySize)]  for x in range(self.xSize)]
+            elif(ctr > 2 and len(coords) > 2 and coords[2] == "1"):
                     
-                    tempX = int(i[0:1])
-                    tempY = int(i[2])
-                    self.table[tempX-1][tempY-1] = True
+                tempX = int(coords[0])
+                tempY = int(coords[1])
+                #print("(" + str(tempX-1) + ", " + str(tempY-1) + ")")
+                self.table[tempX-1][tempY-1] = True
                 
-                ctr = ctr + 1
-            f.close()
-
+            ctr = ctr + 1
+        f.close()
         self.generateVertexGrid()
         self.populateNeighbors()
 
@@ -147,17 +148,21 @@ class CellTableT:
         currentVertex.f = currentVertex.g + currentVertex.h - longest*currentVertex.g #f(s)-c*g(s) from pg 10 of assignment
         self.fringe.insert(currentVertex)
         currentVertex.inFringe = True
+        self.visited = [] # for gui
+        self.visited.append(currentVertex) # for gui
 
         while(self.fringe.size != 0):
             #self.fringe.printFringe()
             currentVertex = self.fringe.pop()
             #print("popped "+str(currentVertex.x)+","+str(currentVertex.y)+"parent: "+str((currentVertex.parent).x)+","+str((currentVertex.parent).y))
             if (currentVertex.equals(self.goalVertex)):
-                return currentVertex
+                self.visited.append(currentVertex) #for gui
+                return currentVertex, self.visited
             currentVertex.closed = True
             for child in currentVertex.neighbors:
                 if (not child.closed):
                     self.updateVertexTheta(currentVertex, child)
+                    self.visited.append(currentVertex) #for gui
         return False
 
 
@@ -508,7 +513,7 @@ class CellTableT:
 
 
 #all of this was just me testing various portions
-tbl = CellTableT(4,3, "qwerty.txt")
+#tbl = CellTableT(4,3, "qwerty.txt")
 #ar = tbl.table
 #print("start = (" + str(tbl.startVertex.x) + ", " + str(tbl.startVertex.y) + ")")
 #print("goal = (" + str(tbl.goalVertex.x) + ", " + str(tbl.goalVertex.y) + ")")
@@ -524,4 +529,4 @@ tbl = CellTableT(4,3, "qwerty.txt")
 #print("DFS result: " + str(tbl.DFS(tbl.startVertex)))
 
 
-tbl.printPath(tbl.thetaStar())
+#tbl.printPath(tbl.thetaStar())
