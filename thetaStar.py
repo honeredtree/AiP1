@@ -2,7 +2,7 @@ from cmath import inf
 import math
 from random import randint, sample
 
-class Vertex:
+class VertexT:
     def __init__(self, x, y):
         self.x = int(x)
         self.y = int(y)
@@ -23,7 +23,7 @@ class Vertex:
 
 
 
-class PriorityQueue:
+class PriorityQueueT:
     def __init__(self,maxSize):
         self.maxSize = maxSize
         self.size = 0
@@ -93,7 +93,7 @@ class PriorityQueue:
         
 
 
-class CellTable:
+class CellTableT:
 
     #set path to None, i couldnt get it to read the file
     def __init__(self, xSize, ySize, path):
@@ -113,12 +113,12 @@ class CellTable:
                 if(ctr == 0):
                     tempX = int(i[0:1])
                     tempY = int(i[2])
-                    self.startVertex = Vertex(tempX, tempY)
+                    self.startVertex = VertexT(tempX, tempY)
                     
                 elif(ctr == 1):
                     tempX = int(i[0:1])
                     tempY = int(i[2])
-                    self.goalVertex = Vertex(tempX, tempY)
+                    self.goalVertex = VertexT(tempX, tempY)
                 elif(ctr == 2):
                     self.xSize = int(i[0:1])
                     self.ySize = int(i[2])
@@ -139,7 +139,7 @@ class CellTable:
     #perform theta* search
     def thetaStar(self):
         self.assignHValuesTheta()
-        self.fringe = PriorityQueue((self.xSize+1)*(self.ySize+1))
+        self.fringe = PriorityQueueT((self.xSize+1)*(self.ySize+1))
         currentVertex = self.startVertex
         currentVertex.g = 0
         currentVertex.parent = currentVertex
@@ -149,9 +149,9 @@ class CellTable:
         currentVertex.inFringe = True
 
         while(self.fringe.size != 0):
-            self.fringe.printFringe()
+            #self.fringe.printFringe()
             currentVertex = self.fringe.pop()
-            print("popped "+str(currentVertex.x)+","+str(currentVertex.y)+"parent: "+str((currentVertex.parent).x)+","+str((currentVertex.parent).y))
+            #print("popped "+str(currentVertex.x)+","+str(currentVertex.y)+"parent: "+str((currentVertex.parent).x)+","+str((currentVertex.parent).y))
             if (currentVertex.equals(self.goalVertex)):
                 return currentVertex
             currentVertex.closed = True
@@ -210,7 +210,7 @@ class CellTable:
         currentY = current.y
         destX = dest.x
         destY = dest.y
-        print(str(current.x)+","+str(current.y)+" to " + str(dest.x)+","+str(dest.y))
+        #print(str(current.x)+","+str(current.y)+" to " + str(dest.x)+","+str(dest.y))
         f = 0
         dy = destY-currentY
         sy = 1
@@ -247,7 +247,7 @@ class CellTable:
                 if (f!=0 and self.checkBlocked( int(currentX+(sx-1)/2-1), int(currentY+(sy-1)/2-1) )):
                     return False
                 if (dx == 0 and self.checkBlocked( int(currentX-1), int(currentY+(sy-1)/2-1)) and self.checkBlocked( currentX-2, int(currentY+(sy-1)/2-1) )):
-                    print("fail here")
+                    #print("fail here")
                     return False
                 currentY = currentY+sy
         return True
@@ -337,7 +337,7 @@ class CellTable:
                 elif(self.goalVertex.x == i+1 and self.goalVertex.y == j+1):
                     row.append(self.goalVertex)
                 else:
-                    tempVertex = Vertex(i+1, j+1)
+                    tempVertex = VertexT(i+1, j+1)
                     row.append(tempVertex)
             grid.append(row)
         self.vertexGrid = grid
@@ -484,11 +484,11 @@ class CellTable:
     def generateVertex(self) :
         tempX = randint(0, self.xSize)
         tempY = randint (0, self.ySize)
-        ret = Vertex(tempX, tempY)
+        ret = VertexT(tempX, tempY)
         while(self.isVertexBlocked(ret)):
                tempX = randint(0, self.xSize)
                tempY = randint (0, self.ySize)
-               ret = Vertex(tempX, tempY)
+               ret = VertexT(tempX, tempY)
         return ret
         
 
@@ -508,7 +508,7 @@ class CellTable:
 
 
 #all of this was just me testing various portions
-tbl = CellTable(4,3, "qwerty.txt")
+tbl = CellTableT(4,3, "qwerty.txt")
 #ar = tbl.table
 #print("start = (" + str(tbl.startVertex.x) + ", " + str(tbl.startVertex.y) + ")")
 #print("goal = (" + str(tbl.goalVertex.x) + ", " + str(tbl.goalVertex.y) + ")")
