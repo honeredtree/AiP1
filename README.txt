@@ -1,4 +1,4 @@
-Created by James Prial,
+Created by James Prial, Miraj Jiyani, Isaac Duan
 
 USAGE: to launch, type “python3 Driver.py” in a terminal within the directory containing the source code.
 From there, the program will prompt you with instructions, first if you want to generate grids, then the path to
